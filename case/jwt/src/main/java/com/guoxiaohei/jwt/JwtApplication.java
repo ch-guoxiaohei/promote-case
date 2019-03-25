@@ -1,7 +1,10 @@
 package com.guoxiaohei.jwt;
 
+import com.guoxiaohei.jwt.filter.JwtFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
 
 /**
  * Description: JwtApplication
@@ -12,8 +15,16 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class JwtApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(JwtApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(JwtApplication.class, args);
+  }
+
+  @Bean
+  public FilterRegistrationBean jwtFilter() {
+    FilterRegistrationBean registrationBean = new FilterRegistrationBean(new JwtFilter());
+    registrationBean.addServletNames("jwtFilter");
+    registrationBean.addUrlPatterns("/api/sccess");
+    return registrationBean;
+  }
 
 }
