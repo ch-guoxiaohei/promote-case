@@ -28,8 +28,9 @@ public class JwtFilter implements Filter {
         String auth = request.getHeader("Authorization");
         if (Objects.isNull(auth) || auth.length() == 0) {
             log.warn("接口没有授权");
+            response.setContentType("application/json;charset=utf-8");
+            response.getWriter().println("接口未授权");
             return;
         }
-
     }
 }
