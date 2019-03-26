@@ -25,7 +25,7 @@ public class AuthorizationController {
             @RequestParam("issure") String issure) {
         try {
             String jwt = JwtGenerate.getInstance()
-                    .createJWT(username, issure, System.currentTimeMillis(),
+                    .createJWT(username, issure, Constant.DEFAULT_JWT_EXPAIR,
                             Base64.getEncoder().encodeToString(
                                     Constant.SLAT.getBytes("utf-8")));
             return jwt;
@@ -35,9 +35,10 @@ public class AuthorizationController {
         return null;
     }
 
-    @GetMapping("sccess")
+    @GetMapping("success")
     public String authSccess() {
         log.debug("鉴权成功");
         return "鉴权成功";
     }
+
 }

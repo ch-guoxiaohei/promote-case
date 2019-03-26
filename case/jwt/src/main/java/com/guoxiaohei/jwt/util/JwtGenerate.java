@@ -40,7 +40,7 @@ public final class JwtGenerate {
 
         //添加构成JWT的参数
         JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT")
-                .claim("unique_name", name).setIssuer(issuer)
+                .claim("unique_name", name).setSubject(name).setIssuer(issuer)
                 .signWith(signatureAlgorithm, signingKey);
         //添加Token过期时间
         if (TTLMillis >= 0) {
