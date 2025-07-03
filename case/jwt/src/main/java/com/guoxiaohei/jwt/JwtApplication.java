@@ -1,5 +1,6 @@
 package com.guoxiaohei.jwt;
 
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import com.guoxiaohei.jwt.filter.JwtFilter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -20,9 +21,8 @@ public class JwtApplication {
     }
 
     @Bean
-    public FilterRegistrationBean jwtFilter() {
-        FilterRegistrationBean registrationBean = new FilterRegistrationBean(
-                new JwtFilter());
+    public FilterRegistrationBean<JwtFilter> jwtFilter() {
+        FilterRegistrationBean<JwtFilter> registrationBean = new FilterRegistrationBean<>(new JwtFilter());
         registrationBean.addServletNames("jwtFilter");
         registrationBean.addUrlPatterns("/api/success");
         return registrationBean;

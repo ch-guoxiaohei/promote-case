@@ -1,67 +1,65 @@
 package com.guoxiaohei.jwt.util;
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
+import jakarta.xml.bind.DatatypeConverter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.security.Key;
+import javax.crypto.SecretKey;
 import java.util.Date;
 
 /**
  * Description:
+ *
  * @author guoyupeng [2019/3/25]
  */
 public final class JwtGenerate {
 
+    private Logger log = LoggerFactory.getLogger(JwtGenerate.class);
+
     private JwtGenerate() {
     }
 
-    private static JwtGenerate JWT_GENERATE = new JwtGenerate();
+    private static final JwtGenerate JWT_GENERATE = new JwtGenerate();
 
     public static JwtGenerate getInstance() {
         return JWT_GENERATE;
     }
 
     public String createJWT(String name, String issuer, long TTLMillis,
-            String base64Security) {
-        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
+                            String base64Security) {
 
-        long nowMillis = System.currentTimeMillis();
-        Date now = new Date(nowMillis);
-
-        //生成签名密钥
-        byte[] apiKeySecretBytes = DatatypeConverter
-                .parseBase64Binary(base64Security);
-        Key signingKey = new SecretKeySpec(apiKeySecretBytes,
-                signatureAlgorithm.getJcaName());
-
-        //添加构成JWT的参数
-        JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT")
-                .claim("unique_name", name).setSubject(name).setIssuer(issuer)
-                .signWith(signatureAlgorithm, signingKey);
-        //添加Token过期时间
-        if (TTLMillis >= 0) {
-            long expMillis = nowMillis + TTLMillis;
-            Date exp = new Date(expMillis);
-            builder.setExpiration(exp).setNotBefore(now);
-        }
-
-        //生成JWT
-        return builder.compact();
+        SecretKey key = Keys.hmacShaKeyFor(
+                DatatypeConverter.parseBase64Binary(base64Security)
+        );
+        return Jwts.builder()
+                .header().type("JWT").and()
+                .subject(name)
+                .issuer(issuer)
+                .claim("unique_name", name)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .signWith(key)
+                .expiration(TTLMillis >= 0 ?
+                        new Date(System.currentTimeMillis() + TTLMillis) : null)
+                .compact();
     }
 
     public Claims parseJWT(String jsonWebToken, String base64Security) {
         try {
-            Claims claims = Jwts.parser().setSigningKey(
-                    DatatypeConverter.parseBase64Binary(base64Security))
-                    .parseClaimsJws(jsonWebToken).getBody();
-            return claims;
+            SecretKey key = Keys.hmacShaKeyFor(
+                    DatatypeConverter.parseBase64Binary(base64Security)
+            );
+            return Jwts.parser()
+                    .verifyWith(key)
+                    .build()
+                    .parseSignedClaims(jsonWebToken)
+                    .getPayload();
+
         } catch (Exception ex) {
+            log.error("JWT 解析失败: {}", ex.getMessage());
             return null;
         }
     }
-
 }

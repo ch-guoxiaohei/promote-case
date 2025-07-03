@@ -3,28 +3,27 @@ package com.guoxiaohei.jwt.filter;
 import com.guoxiaohei.jwt.constant.Constant;
 import com.guoxiaohei.jwt.util.JwtGenerate;
 import io.jsonwebtoken.Claims;
-import lombok.extern.slf4j.Slf4j;
+import jakarta.servlet.*;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Objects;
 
 /**
  * Description:
+ *
  * @author guoyupeng [2019/3/25]
  */
-@Slf4j
 public class JwtFilter implements Filter {
+
+    private final Logger log = LoggerFactory.getLogger(JwtFilter.class);
 
     /**
      * 授权前缀
@@ -33,12 +32,12 @@ public class JwtFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest,
-            ServletResponse servletResponse, FilterChain filterChain)
+                         ServletResponse servletResponse, FilterChain filterChain)
             throws IOException {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         String auth = request.getHeader("Authorization");
-        if (Objects.isNull(auth) || auth.length() == 0) {
+        if (Objects.isNull(auth) || auth.isEmpty()) {
             log.warn("接口没有授权");
             filterMessage(response, "接口没有授权");
             return;
@@ -53,7 +52,7 @@ public class JwtFilter implements Filter {
         String authCode = auth.substring(AUTHORIZATION_PREFIX.length());
         Claims claims = JwtGenerate.getInstance().parseJWT(authCode,
                 Base64.getEncoder().encodeToString(
-                        Constant.SLAT.getBytes(Charset.forName("utf-8"))));
+                        Constant.SLAT.getBytes(StandardCharsets.UTF_8)));
         // 可以根据具体的业务逻辑进行判断,比如和subject进行对比，此case没有设置subject
         if (Objects.nonNull(claims)) {
             log.debug(claims.get("unique_name").toString());
@@ -79,6 +78,6 @@ public class JwtFilter implements Filter {
         } catch (JSONException e) {
             log.error("解析json异常");
         }
-        response.getWriter().println(auth.toString());
+        response.getWriter().println(auth);
     }
 }

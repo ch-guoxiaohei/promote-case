@@ -36,13 +36,28 @@ Filter可以参考`JwtFilter`类。
 
 访问http://127.0.0.1:8080/jwt-case/api/auth?username=guoxiaohei&issure=case, 进行授权
 
-使用postman进行访问  
+1. 用postman进行访问  
 
 ![jwt-no-token](jwt-no-token.png)
 
 ![jwt-token](postman-token.png)
 
+2. 使用curl 验证
+
+```declarative
+curl -H "Content-Type: application/json" \
+     -H "Authorization: auth{token}" \
+     http://localhost:8080/jwt-case/api/success
+
+# windows 
+
+curl -H "Content-Type: application/json" ^
+-H "Authorization: auth{token}" ^
+http://localhost:8080/jwt-case/api/success
+```
 
 
 
-**ps:jdk1.8环境,spring-boot2.0构建**
+
+
+**ps:Jdk 17 环境,spring-boot3.x构建**
