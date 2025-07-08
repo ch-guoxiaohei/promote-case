@@ -4,7 +4,8 @@
 
 1、使用JWT生成token并作简单授权认证。  
 2、Spi的简单实现demo
-
+3、itext-pdf 生成pdf
+4、tess4j ORC识别
 
 ## 参考文档
 
